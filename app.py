@@ -23,12 +23,12 @@ def preprocess(df):
     return df
 
 def suggest_movie(df, movie_title):
-    # Use difflib to get close matches to the movie title
     close_matches = get_close_matches(movie_title, df['original_title'], n=1, cutoff=0.6)
     return close_matches[0] if close_matches else None
 
 def generate_similar_movies(original_title, popularity_threshold=10):
-    df = pd.read_csv("D:\\ML Projects\\RecommendationSystem\\archive\\tmdb_5000_movies.csv")
+    url = "https://raw.githubusercontent.com/Apekshaj04/RecommendationSystem/refs/heads/main/tmdb_5000_movies.csv"
+    df = pd.read_csv(url)
     df = preprocess(df)
     movie = df[df['original_title'] == original_title]
     
@@ -36,10 +36,10 @@ def generate_similar_movies(original_title, popularity_threshold=10):
         movie_genres = set(movie['all_genres'].values[0])
         movie_popularity = movie['popularity'].values[0]
         similar_movies = df[df['all_genres'].apply(lambda genres: bool(movie_genres & set(genres)))]
-        
+
         similar_movies = similar_movies.sort_values(by='popularity', ascending=False)
         similar_movies = similar_movies[similar_movies['popularity'].between(movie_popularity - popularity_threshold, movie_popularity + popularity_threshold)]
-        
+
         if not similar_movies.empty:
             st.write(f"**Similar Movies to {original_title}:**")
             for index, row in similar_movies.iterrows():
